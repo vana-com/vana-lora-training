@@ -11,7 +11,11 @@ The Lora file has information about the subject that you trained on, but doesn't
 
 The Lora could be a face, object, or style.
 
-# Training a Model
+# Training a Model 
+
+This is for the replicate frontend.
+
+[![Replicate](https://replicate.com/replicate/lora/badge)](https://replicate.com/vana-com/vana-lora-training)
 
 - Create a .zip file of some images (png or jpg) of the concept you want to train.
 - Drop the .zip file in the instance_data field.
