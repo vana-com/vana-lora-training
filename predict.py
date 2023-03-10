@@ -86,6 +86,11 @@ class TrainingPredictor(BasePredictor):
         cog_instance_data = "cog_instance_data"
         cog_output_dir = "checkpoints"
         clean_directories([cog_instance_data, cog_output_dir])
+        if instance_data is not None:
+            extract_zip_and_flatten(instance_data, cog_instance_data)
+        if instance_data_urls is not None:
+            extract_urls_and_flatten(json.loads(
+                instance_data_urls), cog_instance_data)
 
         params = {
             "save_steps": max_train_steps_tuning,
@@ -123,18 +128,13 @@ class TrainingPredictor(BasePredictor):
             "weight_decay_ti": 0,
         }
 
-        if instance_data is not None:
-            extract_zip_and_flatten(instance_data, cog_instance_data)
-        if instance_data_urls is not None:
-            extract_urls_and_flatten(json.loads(
-                instance_data_urls), cog_instance_data)
-
         lora_train(**params)
+
         gc.collect()
         torch.cuda.empty_cache()
 
-        num_steps = max_train_steps_tuning
-        weights_path = Path(cog_output_dir) / f"step_{num_steps}.safetensors"
+        weights_path = Path(cog_output_dir) / \
+            f"step_{max_train_steps_tuning}.safetensors"
         output_path = Path(cog_output_dir) / \
             get_output_filename(str(uuid.uuid4()))
         weights_path.rename(output_path)
