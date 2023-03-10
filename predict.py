@@ -14,7 +14,7 @@ from common import (
 )
 
 
-class TrainingPredictor(BasePredictor):
+class Predictor(BasePredictor):
     def predict(
         self,
         instance_data: Path = Input(
