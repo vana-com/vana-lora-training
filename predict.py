@@ -94,7 +94,7 @@ class Predictor(BasePredictor):
 
         params = {
             "save_steps": max_train_steps_tuning,
-            "pretrained_model_name_or_path": base_model,
+            "pretrained_model_name_or_path": "stable-diffusion-v1-5-cache",
             "instance_data_dir": cog_instance_data,
             "output_dir": cog_output_dir,
             "resolution": resolution,

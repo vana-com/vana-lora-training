@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 .cog/
+stable-diffusion-v1-5-cache
