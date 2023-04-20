@@ -130,3 +130,4 @@ dmypy.json
 
 .cog/
 stable-diffusion-v1-5-cache
+test.py

@@ -5,6 +5,7 @@ from lora_diffusion.cli_lora_pti import train as lora_train
 import json
 import uuid
 import re
+from vanautils import FileManager
 
 from common import (
     clean_directories,
@@ -13,8 +14,13 @@ from common import (
     get_output_filename,
 )
 
+IMAGE_DIR = "/tmp/vana-lora-training/images"
+CHECKPOINT_DIR = "/tmp/vana-lora-training/checkpoints"
 
 class Predictor(BasePredictor):
+    def setup(self):
+        self.file_manager = FileManager(download_dir=IMAGE_DIR)
+
     def predict(
         self,
         instance_data: Path = Input(
@@ -25,9 +31,10 @@ class Predictor(BasePredictor):
             description="A list of URLs that can be used instead of a zip file. Do not use both.",
             default=None
         ),
-        base_model: str = Input(
-            description="A base_model",
-            default="runwayml/stable-diffusion-v1-5"
+        custom_prompts: str = Input(
+            description='A list of custom training prompts. Use {} for the token to train. '
+            'e.g. ["a cell phone photo of {}, on a carpeted floor, apartment interior, bright lighting"]',
+            default=None
         ),
         task: str = Input(
             default="face",
@@ -81,22 +88,21 @@ class Predictor(BasePredictor):
             raise Exception('no instance data provided')
 
         seed = 0
-        print(f"Using seed: {seed}")
 
-        cog_instance_data = "cog_instance_data"
-        cog_output_dir = "checkpoints"
-        clean_directories([cog_instance_data, cog_output_dir])
+        clean_directories([IMAGE_DIR, CHECKPOINT_DIR])
+
+        [
+            self.file_manager.download_file(image_url) for image_url in json.loads(instance_data_urls)
+        ] if instance_data_urls is not None else None
+
         if instance_data is not None:
-            extract_zip_and_flatten(instance_data, cog_instance_data)
-        if instance_data_urls is not None:
-            extract_urls_and_flatten(json.loads(
-                instance_data_urls), cog_instance_data)
+            extract_zip_and_flatten(instance_data, IMAGE_DIR)
 
         params = {
             "save_steps": max_train_steps_tuning,
             "pretrained_model_name_or_path": "stable-diffusion-v1-5-cache",
-            "instance_data_dir": cog_instance_data,
-            "output_dir": cog_output_dir,
+            "instance_data_dir": IMAGE_DIR,
+            "output_dir": CHECKPOINT_DIR,
             "resolution": resolution,
             "seed": seed,
             "learning_rate_text": learning_rate_text,
@@ -126,16 +132,20 @@ class Predictor(BasePredictor):
             "placeholder_tokens": "<s1>|<s2>",
             "weight_decay_lora": 0.001,
             "weight_decay_ti": 0,
+            "mixed_precision_tune":True
         }
+        
+        if custom_prompts is not None:
+            params["custom_prompts"] = json.loads(custom_prompts)
 
         lora_train(**params)
 
         gc.collect()
         torch.cuda.empty_cache()
 
-        weights_path = Path(cog_output_dir) / \
+        weights_path = Path(CHECKPOINT_DIR) / \
             f"step_{max_train_steps_tuning}.safetensors"
-        output_path = Path(cog_output_dir) / \
+        output_path = Path(CHECKPOINT_DIR) / \
             get_output_filename(str(uuid.uuid4()))
         weights_path.rename(output_path)
 
