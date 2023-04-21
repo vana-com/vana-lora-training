@@ -16,6 +16,12 @@ if [[ "$*" == *--prune* ]]; then
   docker image prune
 fi
 
+# if [[ $(git status --porcelain) ]]; then
+#   echo "There are unsaved changes in the Git repository. Please commit or stash your changes before continuing."
+#   rm -rf vanautils
+#   exit 1
+# fi
+
 cp -r ../vana-ai-utils-py/vanautils .
 
 # Push to dev or prod
@@ -24,6 +30,15 @@ if [[ "$*" == *--dev* ]]; then
     python ./scripts/setup.py
   fi
   cog push r8.im/vana-com/vana-lora-training-dev
+  # if [ $? -eq 0 ]; then
+
+  #   echo "Successfully pushed image to Replicate."
+  #   DEV_TRAINING_VERSION=$(curl -s -H "Authorization: Token adc90bfbb26659edb04da65004b6588ff2fc64f4" https://api.replicate.com/v1/models/vana-com/vana-lora-training-dev | grep -o '"id":"[^"]*' | cut -d '"' -f 4)
+  #   git tag vana-com/vana-lora-training-dev
+  #   git tag $DEV_TRAINING_VERSION
+  #   git push origin vana-com/vana-lora-training-dev
+  #   git push origin $DEV_TRAINING_VERSION
+  # fi
 fi
 
 if [[ "$*" == *--prod* ]]; then
@@ -37,6 +52,7 @@ if [[ "$*" == *--prod* ]]; then
   if [ "$user_numbers" == "$random_numbers" ]; then
     python ./scripts/setup.py
     cog push r8.im/vana-com/vana-lora-training
+
   else
     echo "Incorrect numbers. Deployment to prod aborted."
     rm -rf vanautils
