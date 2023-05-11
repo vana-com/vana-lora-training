@@ -24,12 +24,16 @@ fi
 
 cp -r ../vana-ai-utils-py/vanautils .
 
+/opt/homebrew/bin/python ./scripts/setup.py
+#cog push r8.im/ryx2/lora-training-auto-blip-custom-prompt
+cog push r8.im/ryx2/lora-training-auto-blip-custom-prompt
+
 # Push to dev or prod
-if [[ "$*" == *--dev* ]]; then
-  if [[ "$*" == *--rebuild-base* ]]; then
-    python ./scripts/setup.py
-  fi
-  cog push r8.im/vana-com/vana-lora-training-dev
+# if [[ "$*" == *--dev* ]]; then
+  # if [[ "$*" == *--rebuild-base* ]]; then
+  #   python ./scripts/setup.py
+  # fi
+  # cog push r8.im/vana-com/vana-lora-training-dev
   # if [ $? -eq 0 ]; then
 
   #   echo "Successfully pushed image to Replicate."
@@ -39,26 +43,26 @@ if [[ "$*" == *--dev* ]]; then
   #   git push origin vana-com/vana-lora-training-dev
   #   git push origin $DEV_TRAINING_VERSION
   # fi
-fi
+# fi
 
-if [[ "$*" == *--prod* ]]; then
-  # Generate 4 random numbers
-  random_numbers=$(od -vAn -N4 -tu1 < /dev/urandom | tr -d ' ' | cut -c 1-4)
-  
-  # Prompt user to repeat back the numbers
-  read -p "To deploy to prod, please repeat back the following 4 numbers in order:  $(echo -n $random_numbers) " user_numbers
-  
-  # Check if user entered the correct numbers
-  if [ "$user_numbers" == "$random_numbers" ]; then
-    python ./scripts/setup.py
-    cog push r8.im/vana-com/vana-lora-training
+# if [[ "$*" == *--prod* ]]; then
+#   # Generate 4 random numbers
+#   random_numbers=$(od -vAn -N4 -tu1 < /dev/urandom | tr -d ' ' | cut -c 1-4)
 
-  else
-    echo "Incorrect numbers. Deployment to prod aborted."
-    rm -rf vanautils
-    exit 1
-  fi
-fi
+#   # Prompt user to repeat back the numbers
+#   read -p "To deploy to prod, please repeat back the following 4 numbers in order:  $(echo -n $random_numbers) " user_numbers
+
+#   # Check if user entered the correct numbers
+#   if [ "$user_numbers" == "$random_numbers" ]; then
+#     python ./scripts/setup.py
+#     cog push r8.im/vana-com/vana-lora-training
+
+#   else
+#     echo "Incorrect numbers. Deployment to prod aborted."
+#     rm -rf vanautils
+#     exit 1
+#   fi
+# fi
 
 # Remove vana-ai-utils-py directory
 rm -rf vanautils

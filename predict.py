@@ -14,6 +14,8 @@ from common import (
     get_output_filename,
 )
 
+from blip_autoprompt import prompter
+
 IMAGE_DIR = "/tmp/vana-lora-training/images"
 CHECKPOINT_DIR = "/tmp/vana-lora-training/checkpoints"
 
@@ -135,8 +137,10 @@ class Predictor(BasePredictor):
             "mixed_precision_tune":True
         }
         
-        if custom_prompts is not None:
-            params["custom_prompts"] = json.loads(custom_prompts)
+        params["custom_prompts"] = prompter(IMAGE_DIR)
+
+        # if custom_prompts is not None:
+        #     params["custom_prompts"] = json.loads(custom_prompts)
 
         lora_train(**params)
 

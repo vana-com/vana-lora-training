@@ -10,6 +10,7 @@ build:
     - "libsm6"
     - "libxext6"
   python_packages:
+    - "replicate==0.8.1"
     - "torch==2.0.0"
     - "torchvision==0.15.1"
     - "xformers==0.0.18"
