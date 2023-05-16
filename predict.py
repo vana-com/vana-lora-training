@@ -1,5 +1,7 @@
 import gc
 import torch
+import random
+import numpy as np
 from cog import BasePredictor, Input, Path
 from lora_diffusion.cli_lora_pti import train as lora_train
 import json
@@ -83,6 +85,12 @@ class Predictor(BasePredictor):
             description="Rank of the LoRA. Larger it is, more likely to capture fidelity but less likely to be editable. Larger rank will make the end result larger.",
         ),
     ) -> Path:
+
+        # Try to be as deterministic as possible
+        torch.use_deterministic_algorithms(True, warn_only=True)
+        torch.manual_seed(0)
+        random.seed(0)
+        np.random.seed(0)
 
         if instance_data is None and instance_data_urls is None:
             raise Exception('no instance data provided')
