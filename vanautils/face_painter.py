@@ -21,8 +21,8 @@ class FacePainter:
 
         @property
         def mask_area(self):
-            mask_dimension = (self.face_area.h * 1.8)
-            mask_dimension = int( mask_dimension - (mask_dimension % 8))
+            mask_dimension = (self.face_area.h * 2.0)
+            mask_dimension = int( mask_dimension + ( 8 - mask_dimension % 8))
 
             return ImageArea(
                 int(min(max(self.face_area.x - ((mask_dimension - self.face_area.w) / 2), 0), self.max_height - mask_dimension)),
