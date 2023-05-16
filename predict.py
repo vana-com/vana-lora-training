@@ -113,7 +113,7 @@ class Predictor(BasePredictor):
 
         for im in sorted(glob.glob(IMAGE_DIR + "/*")):
             if os.path.getsize(im) > 1.5e6: # if you're bigger than 1.5mb, resize to smaller so the training call does not time out
-                imoppped = ImageOps.exif_transpose(Image.open(im))
+                imoppped = ImageOps.exif_transpose(Image.open(im).convert('RGB'))
                 imoppped.thumbnail([resolution,resolution], Image.LANCZOS)
                 imoppped.save(im + "_1024.jpg", quality=100, optimize=True)
                 os.remove(im)
