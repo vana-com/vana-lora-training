@@ -1,5 +1,7 @@
 import gc
 import torch
+import random
+import numpy as np
 from cog import BasePredictor, Input, Path
 from lora_diffusion.cli_lora_pti import train as lora_train
 import json
@@ -84,10 +86,16 @@ class Predictor(BasePredictor):
         ),
     ) -> Path:
 
+        seed = 0
+
+        # Try to be as deterministic as possible
+        torch.use_deterministic_algorithms(True, warn_only=True)
+        torch.manual_seed(seed)
+        random.seed(seed)
+        np.random.seed(seed)
+
         if instance_data is None and instance_data_urls is None:
             raise Exception('no instance data provided')
-
-        seed = 0
 
         clean_directories([IMAGE_DIR, CHECKPOINT_DIR])
 
