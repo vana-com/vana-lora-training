@@ -6,6 +6,10 @@ import json
 import uuid
 import re
 from vanautils import FileManager
+import os
+import shutil
+from PIL import Image, ImageOps
+import glob
 
 from common import (
     clean_directories,
@@ -97,6 +101,18 @@ class Predictor(BasePredictor):
 
         if instance_data is not None:
             extract_zip_and_flatten(instance_data, IMAGE_DIR)
+
+        for im in sorted(glob.glob(IMAGE_DIR + "/*")):
+            if os.path.getsize(im) > 1.5e6: # if you're bigger than 1.5mb, resize to smaller so the training call does not time out
+                imoppped = ImageOps.exif_transpose(Image.open(im).convert('RGB'))
+                imoppped.thumbnail([resolution,resolution], Image.LANCZOS)
+                imoppped.save(im + "_1024.jpg", quality=100, optimize=True)
+                os.remove(im)
+                im += "_1024.jpg"
+                rezip = True
+        if rezip:
+            shutil.make_archive(IMAGE_DIR, "zip", IMAGE_DIR)
+            instance_data = Path(IMAGE_DIR + ".zip")
 
         params = {
             "save_steps": max_train_steps_tuning,
