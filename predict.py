@@ -8,11 +8,6 @@ import json
 import uuid
 import re
 from vanautils import FileManager
-import shutil
-import os
-from PIL import Image
-from PIL import ImageOps
-import glob
 
 from common import (
     clean_directories,
