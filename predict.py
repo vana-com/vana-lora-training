@@ -86,16 +86,16 @@ class Predictor(BasePredictor):
         ),
     ) -> Path:
 
+        seed = 0
+
         # Try to be as deterministic as possible
         torch.use_deterministic_algorithms(True, warn_only=True)
-        torch.manual_seed(0)
-        random.seed(0)
-        np.random.seed(0)
+        torch.manual_seed(seed)
+        random.seed(seed)
+        np.random.seed(seed)
 
         if instance_data is None and instance_data_urls is None:
             raise Exception('no instance data provided')
-
-        seed = 0
 
         clean_directories([IMAGE_DIR, CHECKPOINT_DIR])
 
