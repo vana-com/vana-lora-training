@@ -103,12 +103,19 @@ class Predictor(BasePredictor):
             extract_zip_and_flatten(instance_data, IMAGE_DIR)
 
         for im in sorted(glob.glob(IMAGE_DIR + "/*")):
-            if os.path.getsize(im) > 1.5e6: # if you're bigger than 1.5mb, resize to smaller so the training call does not time out
-                imoppped = ImageOps.exif_transpose(Image.open(im).convert('RGB'))
+            imopened = Image.open(im)
+            width, height = imopened.size
+            if width > resolution or height > resolution: # if you're bigger than 1.5mb, resize to smaller so the training call does not time out
+                imoppped = ImageOps.exif_transpose(imopened.convert('RGB'))
                 imoppped.thumbnail([resolution,resolution], Image.LANCZOS)
-                imoppped.save(im + "_1024.jpg", quality=100, optimize=True)
+                left = (width - resolution)/2
+                top = (height - resolution)/2
+                right = (width + resolution)/2
+                bottom = (height + resolution)/2
+                # Crop the center of the image
+                im = im.crop((left, top, right, bottom))
+                imoppped.save(im + f"_{resolution}.jpg", quality=100, optimize=True)
                 os.remove(im)
-                im += "_1024.jpg"
                 rezip = True
         if rezip:
             shutil.make_archive(IMAGE_DIR, "zip", IMAGE_DIR)
