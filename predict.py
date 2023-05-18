@@ -113,7 +113,7 @@ class Predictor(BasePredictor):
                 right = (width + resolution)/2
                 bottom = (height + resolution)/2
                 # Crop the center of the image
-                im = im.crop((left, top, right, bottom))
+                imoppped = imoppped.crop((left, top, right, bottom))
                 imoppped.save(im + f"_{resolution}.jpg", quality=100, optimize=True)
                 os.remove(im)
                 rezip = True
