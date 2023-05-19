@@ -82,6 +82,10 @@ class Predictor(BasePredictor):
             default=16,
             description="Rank of the LoRA. Larger it is, more likely to capture fidelity but less likely to be editable. Larger rank will make the end result larger.",
         ),
+        placeholder_tokens: str = Input(
+            default="<s1>|<s2>",
+            description="What tokens to use "
+        )
     ) -> Path:
 
         if instance_data is None and instance_data_urls is None:
@@ -129,7 +133,7 @@ class Predictor(BasePredictor):
             "initializer_tokens": None,
             "lr_warmup_steps_lora": 0,
             "placeholder_token_at_data": None,
-            "placeholder_tokens": "<s1>|<s2>",
+            "placeholder_tokens": placeholder_tokens,
             "weight_decay_lora": 0.001,
             "weight_decay_ti": 0,
             "mixed_precision_tune":True
