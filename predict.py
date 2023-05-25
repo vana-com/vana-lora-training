@@ -8,6 +8,10 @@ import json
 import uuid
 import re
 from vanautils import FileManager
+import glob
+from PIL import Image, ImageOps
+import shutil
+import os
 
 from common import (
     clean_directories,
@@ -106,6 +110,28 @@ class Predictor(BasePredictor):
         if instance_data is not None:
             extract_zip_and_flatten(instance_data, IMAGE_DIR)
 
+        for im in sorted(glob.glob(IMAGE_DIR + "/*")):
+            imopened = Image.open(im)
+            width, height = imopened.size
+            if width > resolution*2 or height > resolution*2: # reduce size until its between resolution and 2x resolution
+                xs = int(max(width / resolution, height / resolution))
+                imoppped = ImageOps.exif_transpose(imopened.convert('RGB'))
+                right = width % xs
+                bottom = height % xs
+                print(right, bottom)
+                # Crop the center of the image
+                imoppped = imoppped.crop((0, 0, width - right, height - bottom))
+                nwidth, nheight = imoppped.size
+                newsize = max(nwidth, nheight) / xs
+                print(f"new width {newsize}, xs was {xs}")
+                imoppped.thumbnail([newsize, newsize], Image.NEAREST)
+                imoppped.save(im + f"_{newsize}.jpg", quality=100, optimize=True)
+                os.remove(im)
+                rezip = True
+        if rezip:
+            shutil.make_archive(IMAGE_DIR, "zip", IMAGE_DIR)
+            instance_data = Path(IMAGE_DIR + ".zip")
+
         params = {
             "save_steps": max_train_steps_tuning,
             "pretrained_model_name_or_path": "stable-diffusion-v1-5-cache",
@@ -140,7 +166,8 @@ class Predictor(BasePredictor):
             "placeholder_tokens": "<s1>|<s2>",
             "weight_decay_lora": 0.001,
             "weight_decay_ti": 0,
-            "mixed_precision_tune":True
+            "mixed_precision_tune":True,
+            "resize": False
         }
         
         if custom_prompts is not None:

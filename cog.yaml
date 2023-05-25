@@ -22,6 +22,6 @@ build:
     - "requests==2.28.2"
 
   run:
-    - "pip install git+https://github.com/vana-com/lora.git@cde7286958ff418424056c42a3ac80b4d864a32e"
+    - "pip install git+https://github.com/vana-com/lora.git@6e0037e72259bf46349a775418794560650686a4"
 
 predict: "predict.py:Predictor"
